@@ -1,0 +1,9 @@
+[package]
+name = "annoyify"
+version = "0.1.0"
+authors = ["Tronje Krabbe <hi@tron.je>"]
+edition = "2018"
+
+[dependencies]
+clap = "2.32"
+rand = "0.6"
