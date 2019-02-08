@@ -59,9 +59,15 @@ fn main() {
         buffer += input;
     }
 
-    if matches.is_present("random") {
-        println!("{}", annoyify_random(&buffer));
+    let out = if matches.is_present("random") {
+        annoyify_random(&buffer)
     } else {
-        println!("{}", annoyify_alternating(&buffer));
+        annoyify_alternating(&buffer)
+    };
+
+    if input == "-" {
+        print!("{}", out);
+    } else {
+        println!("{}", out);
     }
 }
