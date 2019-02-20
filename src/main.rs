@@ -21,10 +21,15 @@ fn annoyify_alternating(s: &str) -> String {
     out.chars()
         .map(|mut c| {
             if last_upcase {
-                last_upcase = false;
+                if c.is_ascii_alphabetic() {
+                    last_upcase = false;
+                }
             } else {
+                let prev = c;
                 c.make_ascii_uppercase();
-                last_upcase = true;
+                if prev != c {
+                    last_upcase = true;
+                }
             }
             c
         })
@@ -69,5 +74,20 @@ fn main() {
         print!("{}", out);
     } else {
         println!("{}", out);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn basic_test() {
+        assert_eq!(annoyify_alternating("this is a test"), String::from("ThIs Is A tEsT"));
+    }
+
+    #[test]
+    fn ignore_punctuation() {
+        assert_eq!(annoyify_alternating("this. is. a. test."), String::from("ThIs. Is. A. tEsT."));
     }
 }
