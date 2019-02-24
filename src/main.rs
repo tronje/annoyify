@@ -1,5 +1,5 @@
 use clap::{App, Arg};
-use std::io::{self, Read};
+use std::io::{self, BufRead, Read, Write};
 
 fn annoyify_random(s: &str) -> String {
     let out = s.to_lowercase();
@@ -36,6 +36,30 @@ fn annoyify_alternating(s: &str) -> String {
         .collect()
 }
 
+fn annoyify_stdin(random: bool) {
+    let stdin = io::stdin();
+    let mut stdin_handle = stdin.lock();
+    let stdout = io::stdout();
+    let mut stdout_handle = stdout.lock();
+    let mut buf = String::new();
+
+    loop {
+        stdin_handle.read_line(&mut buf).expect("Reading from stdin failed!");
+        if buf.is_empty() {
+            break;
+        }
+
+        let annoyified = if random {
+            annoyify_random(&buf)
+        } else {
+            annoyify_alternating(&buf)
+        };
+
+        stdout_handle.write(annoyified.as_bytes()).expect("Writing to stdout failed!");
+        buf.clear();
+    }
+}
+
 fn main() {
     let matches = App::new("annoyify")
         .version(env!("CARGO_PKG_VERSION"))
@@ -54,26 +78,14 @@ fn main() {
         .value_of("INPUT")
         .unwrap_or("you need to provide an input");
 
-    let mut buffer = String::new();
-
     if input == "-" {
-        io::stdin()
-            .read_to_string(&mut buffer)
-            .expect("Reading from stdin failed!");
+        annoyify_stdin(matches.is_present("random"));
     } else {
-        buffer += input;
-    }
-
-    let out = if matches.is_present("random") {
-        annoyify_random(&buffer)
-    } else {
-        annoyify_alternating(&buffer)
-    };
-
-    if input == "-" {
-        print!("{}", out);
-    } else {
-        println!("{}", out);
+        if matches.is_present("random") {
+            println!("{}", annoyify_random(&input));
+        } else {
+            println!("{}", annoyify_alternating(&input));
+        }
     }
 }
 
