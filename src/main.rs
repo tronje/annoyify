@@ -1,5 +1,5 @@
 use clap::{App, Arg};
-use std::io::{self, BufRead, Read, Write};
+use std::io::{self, BufRead, Write};
 
 fn annoyify_random(s: &str) -> String {
     let out = s.to_lowercase();
