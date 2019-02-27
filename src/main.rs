@@ -1,91 +1,106 @@
 use clap::{App, Arg};
 use std::io::{self, BufRead, Write};
 
-fn annoyify_random(s: &str) -> String {
-    let out = s.to_lowercase();
-
-    out.chars()
-        .map(|mut c| {
-            if rand::random() {
-                c.make_ascii_uppercase();
-            }
-            c
-        })
-        .collect()
+fn annoyify_random(bytes: &mut [u8]) {
+    for byte in bytes.iter_mut() {
+        if rand::random() {
+            byte.make_ascii_uppercase();
+        } else {
+            byte.make_ascii_lowercase();
+        }
+    }
 }
 
-fn annoyify_alternating(s: &str) -> String {
-    let out = s.to_lowercase();
+fn annoyify_alternating(bytes: &mut [u8]) {
     let mut last_upcase = false;
 
-    out.chars()
-        .map(|mut c| {
-            if last_upcase {
-                if c.is_ascii_alphabetic() {
-                    last_upcase = false;
-                }
-            } else {
-                let prev = c;
-                c.make_ascii_uppercase();
-                if prev != c {
-                    last_upcase = true;
-                }
+    for byte in bytes.iter_mut() {
+        if last_upcase {
+            if byte.is_ascii_alphabetic() {
+                last_upcase = false;
+                byte.make_ascii_lowercase();
             }
-            c
-        })
-        .collect()
+        } else {
+            byte.make_ascii_uppercase();
+            if byte.is_ascii_alphabetic() {
+                last_upcase = true;
+            }
+        }
+    }
 }
 
-fn annoyify_stdin(random: bool) {
+fn annoyify_stdin(random: bool) -> io::Result<()> {
     let stdin = io::stdin();
     let mut stdin_handle = stdin.lock();
     let stdout = io::stdout();
     let mut stdout_handle = stdout.lock();
-    let mut buf = String::new();
 
     loop {
-        stdin_handle.read_line(&mut buf).expect("Reading from stdin failed!");
-        if buf.is_empty() {
-            break;
-        }
+        let length = {
+            let mut buf = stdin_handle.fill_buf()?.to_owned();
+            let len = buf.len();
+            if len == 0 {
+                break;
+            }
 
-        let annoyified = if random {
-            annoyify_random(&buf)
-        } else {
-            annoyify_alternating(&buf)
+            if random {
+                annoyify_random(&mut buf);
+            } else {
+                annoyify_alternating(&mut buf);
+            }
+
+            stdout_handle.write(&buf)?;
+
+            len
         };
 
-        stdout_handle.write(annoyified.as_bytes()).expect("Writing to stdout failed!");
-        buf.clear();
+        stdin_handle.consume(length);
     }
+
+    Ok(())
 }
 
-fn main() {
+fn annoyify_phrase(input: &str, random: bool) -> io::Result<()> {
+    let stdout = io::stdout();
+    let mut stdout_handle = stdout.lock();
+
+    let mut buf = input.to_owned().into_bytes();
+
+    if random {
+        annoyify_random(&mut buf);
+        stdout_handle.write(&buf)?;
+    } else {
+        annoyify_alternating(&mut buf);
+        stdout_handle.write(&buf)?;
+    }
+
+    // write an extra newline
+    stdout_handle.write(&['\n' as u8])?;
+
+    Ok(())
+}
+
+fn main() -> io::Result<()> {
     let matches = App::new("annoyify")
         .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
         .about("Annoyify a phrase")
-        .arg(Arg::with_name("INPUT").help("The input string to annoyify, or `-' for stdin"))
-        .arg(
-            Arg::with_name("random")
-                .short("r")
-                .long("random")
-                .help("Randomize instead of alternating"),
-        )
+        .arg(Arg::with_name("INPUT").help(
+            "The input string to annoyify, or `-' for stdin",
+        ))
+        .arg(Arg::with_name("random").short("r").long("random").help(
+            "Randomize instead of alternating",
+        ))
         .get_matches();
 
-    let input = matches
-        .value_of("INPUT")
-        .unwrap_or("you need to provide an input");
+    let input = matches.value_of("INPUT").unwrap_or(
+        "you need to provide an input",
+    );
 
     if input == "-" {
-        annoyify_stdin(matches.is_present("random"));
+        annoyify_stdin(matches.is_present("random"))
     } else {
-        if matches.is_present("random") {
-            println!("{}", annoyify_random(&input));
-        } else {
-            println!("{}", annoyify_alternating(&input));
-        }
+        annoyify_phrase(input, matches.is_present("random"))
     }
 }
 
@@ -95,11 +110,17 @@ mod tests {
 
     #[test]
     fn basic_test() {
-        assert_eq!(annoyify_alternating("this is a test"), String::from("ThIs Is A tEsT"));
+        let mut before = "this is a test".to_owned().into_bytes();
+        let expected = "ThIs Is A tEsT".to_owned().into_bytes();
+        annoyify_alternating(&mut before);
+        assert_eq!(before, expected);
     }
 
     #[test]
     fn ignore_punctuation() {
-        assert_eq!(annoyify_alternating("this. is. a. test."), String::from("ThIs. Is. A. tEsT."));
+        let mut before = "this. is. a. test.".to_owned().into_bytes();
+        let expected = "ThIs. Is. A. tEsT.".to_owned().into_bytes();
+        annoyify_alternating(&mut before);
+        assert_eq!(before, expected);
     }
 }
