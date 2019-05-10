@@ -94,11 +94,12 @@ fn main() -> io::Result<()> {
         .get_matches();
 
     let input = matches.value_of("INPUT");
+    let random = matches.is_present("random");
 
     if input.is_some() {
-        annoyify_phrase(input.unwrap(), matches.is_present("random"))
+        annoyify_phrase(input.unwrap(), random)
     } else {
-        annoyify_stdin(matches.is_present("random"))
+        annoyify_stdin(random)
     }
 }
 
