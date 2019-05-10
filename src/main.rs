@@ -86,21 +86,19 @@ fn main() -> io::Result<()> {
         .author(env!("CARGO_PKG_AUTHORS"))
         .about("Annoyify a phrase")
         .arg(Arg::with_name("INPUT").help(
-            "The input string to annoyify, or `-' for stdin",
+            "The input string to annoyify. If not present, stdin will be annoyified.",
         ))
         .arg(Arg::with_name("random").short("r").long("random").help(
             "Randomize instead of alternating",
         ))
         .get_matches();
 
-    let input = matches.value_of("INPUT").unwrap_or(
-        "you need to provide an input",
-    );
+    let input = matches.value_of("INPUT");
 
-    if input == "-" {
-        annoyify_stdin(matches.is_present("random"))
+    if input.is_some() {
+        annoyify_phrase(input.unwrap(), matches.is_present("random"))
     } else {
-        annoyify_phrase(input, matches.is_present("random"))
+        annoyify_stdin(matches.is_present("random"))
     }
 }
 
