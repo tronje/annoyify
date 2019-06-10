@@ -3,6 +3,8 @@ name = "annoyify"
 version = "0.1.0"
 authors = ["Tronje Krabbe <hi@tron.je>"]
 edition = "2018"
+description = "A pRoGrAm To AnNoYiFy TeXt"
+license = "MIT"
 
 [dependencies]
 clap = "2.32"
