@@ -3,7 +3,6 @@ function annoyify(text) {
 	let last_upcase = false;
 
 	for (letter of text) {
-		console.log(letter);
 		if (last_upcase === true) {
 			result = result.concat(letter.toUpperCase());
 		} else {
