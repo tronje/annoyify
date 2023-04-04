@@ -30,14 +30,12 @@ fn annoyify_alternating(bytes: &mut [u8]) {
 }
 
 fn annoyify_stdin(random: bool) -> io::Result<()> {
-    let stdin = io::stdin();
-    let mut stdin_handle = stdin.lock();
-    let stdout = io::stdout();
-    let mut stdout_handle = stdout.lock();
+    let mut stdin = io::stdin().lock();
+    let mut stdout = io::stdout().lock();
 
     loop {
         let length = {
-            let mut buf = stdin_handle.fill_buf()?.to_owned();
+            let mut buf = stdin.fill_buf()?.to_owned();
             let len = buf.len();
             if len == 0 {
                 break;
@@ -49,33 +47,32 @@ fn annoyify_stdin(random: bool) -> io::Result<()> {
                 annoyify_alternating(&mut buf);
             }
 
-            stdout_handle.write(&buf)?;
+            stdout.write(&buf)?;
 
             len
         };
 
-        stdin_handle.consume(length);
+        stdin.consume(length);
     }
 
     Ok(())
 }
 
 fn annoyify_phrase(input: &str, random: bool) -> io::Result<()> {
-    let stdout = io::stdout();
-    let mut stdout_handle = stdout.lock();
+    let mut stdout = io::stdout().lock();
 
     let mut buf = input.to_owned().into_bytes();
 
     if random {
         annoyify_random(&mut buf);
-        stdout_handle.write(&buf)?;
+        stdout.write(&buf)?;
     } else {
         annoyify_alternating(&mut buf);
-        stdout_handle.write(&buf)?;
+        stdout.write(&buf)?;
     }
 
     // write an extra newline
-    stdout_handle.write(&['\n' as u8])?;
+    stdout.write(&['\n' as u8])?;
 
     Ok(())
 }
