@@ -43,7 +43,7 @@ fn annoyify_stdin(random: bool) -> io::Result<()> {
                 annoyify_alternating(&mut buf);
             }
 
-            stdout.write(&buf)?;
+            stdout.write_all(&buf)?;
 
             len
         };
@@ -61,14 +61,14 @@ fn annoyify_phrase(input: &str, random: bool) -> io::Result<()> {
 
     if random {
         annoyify_random(&mut buf);
-        stdout.write(&buf)?;
+        stdout.write_all(&buf)?;
     } else {
         annoyify_alternating(&mut buf);
-        stdout.write(&buf)?;
+        stdout.write_all(&buf)?;
     }
 
     // write an extra newline
-    stdout.write(&['\n' as u8])?;
+    stdout.write_all(b"\n")?;
 
     Ok(())
 }
