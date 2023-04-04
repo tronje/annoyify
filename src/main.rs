@@ -21,8 +21,8 @@ fn annoyify_alternating(bytes: &mut [u8]) {
                 byte.make_ascii_lowercase();
             }
         } else {
-            byte.make_ascii_uppercase();
             if byte.is_ascii_alphabetic() {
+                byte.make_ascii_uppercase();
                 last_upcase = true;
             }
         }
