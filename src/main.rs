@@ -85,12 +85,16 @@ fn main() -> io::Result<()> {
         .version(env!("CARGO_PKG_VERSION"))
         .author(env!("CARGO_PKG_AUTHORS"))
         .about("Annoyify a phrase")
-        .arg(Arg::with_name("INPUT").help(
-            "The input string to annoyify. If not present, stdin will be annoyified.",
-        ))
-        .arg(Arg::with_name("random").short("r").long("random").help(
-            "Randomize instead of alternating",
-        ))
+        .arg(
+            Arg::with_name("INPUT")
+                .help("The input string to annoyify. If not present, stdin will be annoyified."),
+        )
+        .arg(
+            Arg::with_name("random")
+                .short("r")
+                .long("random")
+                .help("Randomize instead of alternating"),
+        )
         .get_matches();
 
     let input = matches.value_of("INPUT");
