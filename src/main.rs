@@ -93,8 +93,8 @@ fn main() -> io::Result<()> {
     let input = matches.value_of("INPUT");
     let random = matches.is_present("random");
 
-    if input.is_some() {
-        annoyify_phrase(input.unwrap(), random)
+    if let Some(phrase) = input {
+        annoyify_phrase(phrase, random)
     } else {
         annoyify_stdin(random)
     }
