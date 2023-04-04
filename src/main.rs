@@ -15,16 +15,12 @@ fn annoyify_alternating(bytes: &mut [u8]) {
     let mut last_upcase = false;
 
     for byte in bytes.iter_mut() {
-        if last_upcase {
-            if byte.is_ascii_alphabetic() {
-                last_upcase = false;
-                byte.make_ascii_lowercase();
-            }
-        } else {
-            if byte.is_ascii_alphabetic() {
-                byte.make_ascii_uppercase();
-                last_upcase = true;
-            }
+        if last_upcase && byte.is_ascii_alphabetic() {
+            last_upcase = false;
+            byte.make_ascii_lowercase();
+        } else if byte.is_ascii_alphabetic() {
+            byte.make_ascii_uppercase();
+            last_upcase = true;
         }
     }
 }
