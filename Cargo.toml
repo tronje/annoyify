@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Tronje Krabbe <hi@tron.je>"]
 edition = "2021"
 license = "0BSD"
+description = "AnNoYiFy TeXt To LoOk LiKe ThIs"
 
 [dependencies]
 clap = "2.32"
